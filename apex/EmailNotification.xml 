@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexClass xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>48.0</apiVersion>
+    <status>Active</status>
+    <description>This class sends an email notification when a new account is created.</description>
+    <packageVersions>
+        <majorNumber>1</majorNumber>
+        <minorNumber>0</minorNumber>
+        <namespace>emailNotification</namespace>
+    </packageVersions>
+    <isValid>true</isValid>
+    <name>EmailNotification</name>
+    <body>
+    public class EmailNotification {
+        public static void sendNotification(Account record) {
+            // Get the System Admin's email address
+            String sysAdminEmail = [SELECT Email from User where IsSystemAdmin = true].Email;
+
+            // Format the email subject line
+            String subject = 'New Account Got Created';
+
+            // Format the email body
+            String body = 'A new account has been created with the following details: \n' +
+                          'Account Name: ' + record.Name + '\n' +
+                          'Date of Creation: ' + record.CreatedDate + '\n' +
+                          'Account Owner Contact Info: ' + record.Owner.Email;
+
+            // Create the email
+            Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
+            message.setSubject(subject);
+            message.setPlainTextBody(body);
+            message.setToAddresses(new String[] { sysAdminEmail });
+
+            // Send the email
+            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { message });
+        }
+    }
+    </body>
+</ApexClass>
